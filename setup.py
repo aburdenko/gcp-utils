@@ -28,14 +28,14 @@ long_description = (pathlib.Path(__file__).parent
                     .read_text())
 
 setuptools.setup(
-    name="gcp-utils",
+    name="gcputils",
     version=VERSION,
     description="",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/aburdenko",
-    author="Google Inc.",
-    author_email="aburdenko@google.com",
+    author="Alex Burdenko",
+    author_email="alex.burdenko@gmail.com",
     packages=setuptools.find_packages(),
     install_requires=REQUIRED_PACKAGES,
     extras_require={
