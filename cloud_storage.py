@@ -127,22 +127,19 @@ def ftp_to_bucket( ftp_host, ftp_path, bucket_name, ftp_user = 'anonymous', ftp_
   ftp.cwd(path)
 
   print(f"file_name: {file_name} path: {path}")
-  filesize = ftp.size(ftp_path) / MEGABYTE
+  #filesize = ftp.size(ftp_path) / MEGABYTE
+
+  filesize = 0  
+  try:
+    ftp.voidcmd('TYPE I')
+    size = ftp.size(ftp_path) 
+    filesize = size / MEGABYTE
+  except:
+    pass
+
   print(f"Downloading: {file_name}   SIZE: {filesize:.1f} MB")
   
   blob_path = f"gs://{bucket_name}/upload/{file_name}"
-
-  from ftplib import FTP
-  from smart_open import open
-
-  parts = list()
-  chunksize = 32 * 1024 * 1024
-
-  host = 'ftp.uniprot.org'
-
-  ftp = FTP(host)
-  ftp.login()
-  ftp.cwd(path)
 
   buffer : bytearray
   with open(blob_path, "wb",  transport_params={'min_part_size' :CHUNKSIZE} ) as f_out:          
