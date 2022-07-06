@@ -145,6 +145,6 @@ def __run_cmd( cmd : str ) -> tuple :
     print("stdout:", result.stdout)
     print("stderr:", result.stderr)
 
-    return stdout, stderr
+    return result.stdout, result.stderr
            
 
