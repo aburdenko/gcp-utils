@@ -1,1 +1,4 @@
 pyftpdlib
+useful_rdkit_utils
+pandas
+flask
