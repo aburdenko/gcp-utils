@@ -1,4 +1,4 @@
-Copyright 2022 Alex Burdenko
+#Copyright 2022 Alex Burdenko
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -251,6 +251,32 @@ def upload_df_to_bucket(df: DataFrame, bucket_name, file_name = 'default.csv' ):
     bucket = client.get_bucket(bucket_name)                
     bucket.blob(file_name).upload_from_string(df.to_csv( encoding='utf-8'), 'text/csv' )
 
+def download_str_from_bucket(bucket_name, file_path = '/default.csv' )->str:
+    from google.cloud import storage
+    import os
+    import pandas as pd
+
+    client = storage.Client()
+    bucket = client.get_bucket(bucket_name)                
+    blob = bucket.blob(file_path)
+
+    from smart_open import open
+    from io import StringIO
+    content_buf = StringIO()
+    # stream from GCS    
+    
+    content = None
+    if blob.exists( client ):
+        
+        blob_path = f"gs://{bucket_name}/{file_path}"
+        for line in open(blob_path, encoding="ISO-8859-1"):
+            content_buf.write( line )              
+    
+        content_buf.flush()          
+        content = content_buf.getvalue()
+        
+    return content
+
 def download_df_from_bucket(bucket_name, file_name = 'default.csv' )->DataFrame:
     from google.cloud import storage
     import os
@@ -299,7 +325,7 @@ def upload_str_to_bucket(str_buf, bucket_name, file_path = '/' ):
     bucket = client.get_bucket(bucket_name)
     blob: Blob = bucket.blob(file_path)
     blob.cache_control = "no-cache,max-age=0"    
-    blob.content_encoding = "utf-8"    
+    blob.content_encoding = "utf-16"    
 
     # if blob.exists():
     #     content = blob.download_as_string()
