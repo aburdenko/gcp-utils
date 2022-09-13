@@ -8,22 +8,6 @@ from google.cloud import bigquery
 import pickle
 
 
-# TODO(developer): Uncomment these variables before running the sample.
-PROJECT_ID = '419103448378'  # @param {type:"string"} <---CHANGE THESE
-# Format is 'us' or 'eu'
-LOCATION = 'us'   # @param {type:"string"} <---CHANGE THESE
-# Create processor in Cloud Console
-#PROC_ID = 'c136dd1d86619949' # @param {type:"string"} <---CHANGE THESE
-PROC_ID = 'bbe9f47188b1fc33' # @param {type:"string"} <---CHANGE THESE
-
-#GCS_INPUT_URI = "gs://ocr_e2e_input/gene.pdf" # Format: gs://bucket/directory/file.pdf
-
-# Format: gs://bucket/directory/
-GCS_INPUT_URI = "gs://medical_text_demo/incoming"  # @param {type:"string"} <---CHANGE THESE
-GCS_INPUT_URI2 = "gs://medical_text_demo/hcls_nl_json"  # @param {type:"string"} <---CHANGE THESE
-GCS_INPUT_URI3 = "gs://medical_text_demo/bq_import"  # @param {type:"string"} <---CHANGE THESE
-
-
 
 def concat(*args, sep=","):
     return sep.join(args)
@@ -543,6 +527,18 @@ def process_uris(uris: list, project_id: str):
 if __name__ == '__main__':
   PROJECT_ID='kallogjeri-project-345114'
   BUCKET_NAME='medical_text_demo'
+  
+  # Format is 'us' or 'eu'
+  LOCATION = 'us'   # @param {type:"string"} <---CHANGE THESE
+  # Create processor in Cloud Console
+  #PROC_ID = 'c136dd1d86619949' # @param {type:"string"} <---CHANGE THESE
+  PROC_ID = 'bbe9f47188b1fc33' # @param {type:"string"} <---CHANGE THESE
+
+  # Format: gs://bucket/directory/
+  GCS_INPUT_URI = "gs://medical_text_demo/incoming"  # @param {type:"string"} <---CHANGE THESE
+  GCS_INPUT_URI2 = "gs://medical_text_demo/hcls_nl_json"  # @param {type:"string"} <---CHANGE THESE
+  GCS_INPUT_URI3 = "gs://medical_text_demo/bq_import"  # @param {type:"string"} <---CHANGE THESE
+
   
   process_uris(gcs_inputs, project_id=PROJECT_ID)          
 
