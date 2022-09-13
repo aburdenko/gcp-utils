@@ -39,7 +39,10 @@ class BqImportFileConverter(FileConverter):
         return list(keys)
 
     def _already_imported( self, gcs_input_path : str, key: str = 'input_gcs_uri')->bool:
-        sql = f"select {key} from entities.Entity"
+        
+        table = 'Entity' if 'entity' in gcs_input_path else 'Document'
+        
+        sql = f"select {key} from entities.{table}"
         
         print( self._creds )
         print( self._project_id )

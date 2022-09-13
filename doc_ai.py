@@ -468,6 +468,8 @@ def process_uris(uris: list, project_id: str):
   from google.cloud import storage
   storage_client = storage.Client()  
   #uris = (uri for uri in uris if len(uri)>0)
+
+  gcs_keys = dict()
   
   for uri in uris:
     
@@ -492,25 +494,31 @@ def process_uris(uris: list, project_id: str):
     bucket = storage.Client().get_bucket(bucket_name)
     blobs = list(storage_client.list_blobs(bucket_name, prefix=f"{folder_path}/", fields="items(name)"))
     
-    is_first = True
+    
     for blob in blobs:
       
       if not blob.name.endswith('/'):
-
+        
         print(str(blob))
 
-        if is_first:
-          first_gcs_path = blob.name
-          is_first = False
-
-
+       
         # Download JSON File as bytes object and convert to Document Object
         print(f"Fetching {blob.name}")
           
         file_path=blob.name
         arr = file_path.split('.')   
         
-        folder = arr[0].split('/')[0]
+        split = arr[0].split('/')
+
+        file_key = split[1].replace('document_','').replace('entity_', '')
+
+        if 'raw_text' in blob.name:
+          first_gcs_path = f"gs://{bucket_name}/{blob.name}"          
+          gcs_keys[file_key]=first_gcs_path
+        else:
+          first_gcs_path = gcs_keys[file_key]
+          
+        folder = split[0]
         prefix = folder.capitalize()
         class_name = f"{prefix}FileConverter"
 
@@ -536,7 +544,7 @@ if __name__ == '__main__':
   PROC_ID = 'bbe9f47188b1fc33' # @param {type:"string"} <---CHANGE THESE
 
   # Format: gs://bucket/directory/
-  GCS_INPUT_URI = "gs://medical_text_demo/incoming"  # @param {type:"string"} <---CHANGE THESE
+  GCS_INPUT_URI = "gs://medical_text_demo/raw_text"  # @param {type:"string"} <---CHANGE THESE
   GCS_INPUT_URI2 = "gs://medical_text_demo/hcls_nl_json"  # @param {type:"string"} <---CHANGE THESE
   GCS_INPUT_URI3 = "gs://medical_text_demo/bq_import"  # @param {type:"string"} <---CHANGE THESE
 
