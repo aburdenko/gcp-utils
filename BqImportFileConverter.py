@@ -13,7 +13,7 @@ class BqImportFileConverter(FileConverter):
         """
             Loading data to BigQuery 
         """    
-        key = 'gcs_uri'
+        key = 'input_gcs_uri'
         from google.cloud import bigquery
         
         #print(project)
@@ -38,18 +38,17 @@ class BqImportFileConverter(FileConverter):
 
         return list(keys)
 
-    def _already_imported( self, gcs_input_path : str )->bool:
-        sql = "select gcs_uri from entities.Entity"
+    def _already_imported( self, gcs_input_path : str, key: str = 'input_gcs_uri')->bool:
+        sql = f"select {key} from entities.Entity"
         
         print( self._creds )
         print( self._project_id )
-        gcs_uris: list = self._bq_query(sql, key='input_gcs_uri')        
+        try:
+            gcs_uris: list = self._bq_query(sql, key=key)        
+        except:
+            return False
 
-        print(f"path to check is {gcs_input_path}")
-        
-        [print(f"checking uri {uri}..") in gcs_uris]
-        
-
+        print(f"Checking if {gcs_input_path} is already loaded...")                        
         print(f"bool: {gcs_input_path in gcs_uris}")
 
         return (gcs_input_path in gcs_uris)
@@ -96,9 +95,12 @@ class BqImportFileConverter(FileConverter):
         creds=self._creds
         project=self._project_id
 
-        #if 'entity' in self._file_name and not self._already_imported( self._input_gcs_uri):
-        write_disposition : bigquery.WriteDisposition = bigquery.WriteDisposition().WRITE_APPEND
-        self._bq_import( 'entities', 'Entity',  self._input_gcs_uri, src_fmt=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON, write_disposition=write_disposition ) 
+        if not self._already_imported( self._input_gcs_uri):
+            table_name : str = self._file_name.split('_')[0]
+            table_name = table_name.capitalize()        
+            
+            write_disposition : bigquery.WriteDisposition = bigquery.WriteDisposition().WRITE_APPEND
+            self._bq_import( 'entities', table_name,  self._input_gcs_uri, src_fmt=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON, write_disposition=write_disposition ) 
             
 
 

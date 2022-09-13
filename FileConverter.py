@@ -52,7 +52,7 @@ class FileConverter( object, metaclass=Interface):
         print(f"clean_file_path: {clean_file_path}")
         return (clean_file_path, raw_file_name, file_prefix, file_ext, folder)
 
-    def to_jsonl( self,  entity_list : list):
+    def _to_jsonl( self,  entity_list : list):
         import json
         from io import StringIO
         
