@@ -11,6 +11,8 @@ class RawTextFileConverter(FileConverter):
         print(f"sub_folder : {self._sub_folder}")
         print(f"bucket_name : {self._bucket_name}")
         print(f"file_name : {self._file_name}")
+        print(f"raw_text_file_path : {self._raw_text_file_path}")
+        print(f"hcls_nl_json_uri : {self._hcls_nl_json_uri}")
 
 
         str_item=self._content

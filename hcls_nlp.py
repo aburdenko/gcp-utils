@@ -1,11 +1,15 @@
+from google.cloud import language_v1 as language
+#from google.cloud import language
+
 def get_one_mb_str_blocks( str_item: str, blocks: list ):
   #MAX_LEN=1000000  
   MAX_LEN=20000
   str_len = len( str_item.encode('utf-16') )
+  
   if str_len > MAX_LEN :
      rest = str_item[MAX_LEN+1:]
 
-     if len(rest.encode('utf-16')) > MAX_LEN:
+     if len(rest.encode('utf-16')) > MAX_LEN:     
         get_one_mb_str_blocks( rest, blocks )
      else:
         blocks.append( rest ) 
@@ -112,15 +116,32 @@ class Client(ClientWithProject):
       Returns:
         Dict[str, Any]: the JSON response.
       """
-    #print( document )
+    
+    # client = language.LanguageServiceClient()    
+    # document = language.Document(content=document, type_=language.Document.Type.PLAIN_TEXT)
+
+
+    # #document = language.Document(content=document, type = language.Document.Type.PLAIN_TEXT)
+    # #document = language.Document(content=document, type_=language.Document.Type.PLAIN_TEXT)
+
+    # client = language.LanguageServiceClient()
+    # response = client.analyze_entities(document=document)
+
+
+    # print( document )
+    document = str( document.encode('utf-8') )
+    
     return self._connection.api_request(
         'POST',
         self.path + ':analyzeEntities',
         data={'document_content': document})
+        
 
+    
 def analyze_entities(str_item, project, creds)->dict:
    #API Limits the size of the text field to 1 MB
   str_blocks = list()          
+  #str_item = str_item.encode(encoding='utf-8')
   get_one_mb_str_blocks( str_item, str_blocks )
 
   client = Client( project=project, credentials=creds )
@@ -128,13 +149,12 @@ def analyze_entities(str_item, project, creds)->dict:
     last_fragment = str_blocks[len(str_blocks)-1]
 
   res = dict()
+    
   for block in str_blocks:          
 
-    # str_item = "Sepsis results in unfettered inflammation, tissue damage, and multiple organ failure. Diffuse brain dysfunction and neurological manifestations secondary to sepsis are termed sepsis-associated encephalopathy (SAE). Extracellular nucleotides, proinflammatory cytokines, and oxidative stress reactions are associated with delirium and brain injury, and might be linked to the pathophysiology of SAE. P2X7 receptor activation by extracellular ATP leads to maturation and release of IL-1β by immune cells, which stimulates the production of oxygen reactive species. Hence, we sought to investigate the role of purinergic signaling by P2X7 in a model of sepsis. We also determined how this process is regulated by the ectonucleotidase CD39, a scavenger of extracellular nucleotides. Wild type (WT), P2X7 receptor (P2X7)"    
-    
-    res.update( client.analyze_entities(block) )     
-        
-
+    # str_item = "Sepsis results in unfettered inflammation, tissue damage, and multiple organ failure. Diffuse brain dysfunction and neurological manifestations secondary to sepsis are termed sepsis-associated encephalopathy (SAE). Extracellular nucleotides, proinflammatory cytokines, and oxidative stress reactions are associated with delirium and brain injury, and might be linked to the pathophysiology of SAE. P2X7 receptor activation by extracellular ATP leads to maturation and release of IL-1β by immune cells, which stimulates the production of oxygen reactive species. Hence, we sought to investigate the role of purinergic signaling by P2X7 in a model of sepsis. We also determined how this process is regulated by the ectonucleotidase CD39, a scavenger of extracellular nucleotides. Wild type (WT), P2X7 receptor (P2X7)"        
+    res.update( client.analyze_entities( block ) )   
+          
   return res    
 
 def get_entities(resp, text, raw_file_path, nlp_file_path, automl_file_path = None):  

@@ -55,14 +55,14 @@ class HclsNlJsonFileConverter(FileConverter):
                         mentions = entity.get('mentions', None)
                         if mentions is None:
                             entity['mentions']  = list()
-          
-            simple_mention['entity_id']=entity['entity_id']
-            entity['mentions'].append( simple_mention )        
-            entities[ entity['entity_id'] ]  = entity
 
-            entity_mentions.append(simple_mention)
-        
-        i = i + 1
+                        simple_mention['entity_id']=entity['entity_id']
+                        entity['mentions'].append( simple_mention )        
+                        entities[ entity['entity_id'] ]  = entity    
+                        
+
+            entity_mentions.append(simple_mention)        
+            i = i + 1
 
         for rel in resp.get('relationships', []): 
             subject_id = rel['subjectId']
@@ -138,13 +138,14 @@ class HclsNlJsonFileConverter(FileConverter):
 
             return automl_entities    
  
-    def _get_document(self, input_gcs_uri : str, first_gcs_uri : str, was_ocrd : bool, automl_dataset_id : str)->dict:  
+    def _get_document(self, input_gcs_uri : str, first_gcs_uri : str, raw_text_file_path : str, hcls_nl_json_uri : str, was_ocrd : bool, automl_dataset_id : str)->dict:  
     
         docs = dict()       
         single_doc = dict()     
         #single_doc['gcs_uri'], _, _ = get_clean_path(gcs_path)
-        single_doc['input_gcs_uri'] = input_gcs_uri        
-        single_doc['first_gcs_uri'] = first_gcs_uri        
+        single_doc['input_gcs_uri'] = input_gcs_uri
+        single_doc['first_gcs_uri'] = first_gcs_uri
+        single_doc['hcls_nl_json_uri'] = hcls_nl_json_uri
         single_doc['was_ocrd'] = True       
         single_doc['was_abstracted'] = True
         single_doc['automl_dataset_url'] = f"https://console.cloud.google.com/vertex-ai/locations/us-central1/datasets/{automl_dataset_id}"
@@ -203,7 +204,12 @@ class HclsNlJsonFileConverter(FileConverter):
 
         was_ocrd : bool = True if 'pdf' in self._input_gcs_uri else False
 
-        doc = self._get_document(f"gs://{self._bucket_name}/{bq_doc_file_path}", self._first_gcs_uri,  was_ocrd, None)        
+        doc = self._get_document(f"gs://{self._bucket_name}/{bq_doc_file_path}" 
+            , self._first_gcs_uri
+            , self._raw_text_file_path 
+            , self._hcls_nl_json_uri 
+            , was_ocrd
+            , None)        
         upload_str_to_bucket( self._to_jsonl( list( doc.values()) ), bucket_name=self._bucket_name, file_path=bq_doc_file_path)    
 
         

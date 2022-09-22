@@ -75,15 +75,14 @@ class BqImportFileConverter(FileConverter):
         job_config = bigquery.LoadJobConfig()
         job_config.write_disposition = write_disposition
         job_config.source_format = src_fmt
-        job_config.autodetect = True
+        job_config.autodetect = True       
 
         load_job = bq.load_table_from_uri(
             input_gcs_uri,
             table_ref,
             job_config = job_config)  # API request
         print('Starting job {}'.format(load_job.job_id))
-
-        load_job.result()  # Waits for table load to complete.
+        load_job.result()  # Waits for table load to complete.        
         print('Job finished.') 
        
     def process( self, **kwargs ):       
@@ -103,8 +102,11 @@ class BqImportFileConverter(FileConverter):
             table_name = table_name.capitalize()        
             
             write_disposition : bigquery.WriteDisposition = bigquery.WriteDisposition().WRITE_APPEND
-            self._bq_import( 'entities', table_name,  self._input_gcs_uri, src_fmt=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON, write_disposition=write_disposition ) 
-            
+            try:
+                self._bq_import( 'entities', table_name,  self._input_gcs_uri, src_fmt=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON, write_disposition=write_disposition ) 
+            except:
+                write_disposition : bigquery.WriteDisposition = bigquery.WriteDisposition().WRITE_TRUNCATE
+                self._bq_import( 'entities', table_name,  self._input_gcs_uri, src_fmt=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON, write_disposition=write_disposition ) 
 
 
 
