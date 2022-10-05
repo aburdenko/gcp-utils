@@ -98,15 +98,19 @@ class BqImportFileConverter(FileConverter):
         project=self._project_id
 
         if not self._already_imported( self._input_gcs_uri):
-            table_name : str = self._file_name.split('_')[0]
+            
+            dataset_and_table_names = self._file_prefix.split('_')            
+            dataset_name : str = dataset_and_table_names[0]
+            dataset_name = dataset_name.lower()
+            table_name : str = dataset_and_table_names[1]
             table_name = table_name.capitalize()        
             
             write_disposition : bigquery.WriteDisposition = bigquery.WriteDisposition().WRITE_APPEND
             try:
-                self._bq_import( 'entities', table_name,  self._input_gcs_uri, src_fmt=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON, write_disposition=write_disposition ) 
+                self._bq_import( dataset_name, table_name,  self._input_gcs_uri, src_fmt=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON, write_disposition=write_disposition ) 
             except:
                 write_disposition : bigquery.WriteDisposition = bigquery.WriteDisposition().WRITE_TRUNCATE
-                self._bq_import( 'entities', table_name,  self._input_gcs_uri, src_fmt=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON, write_disposition=write_disposition ) 
+                self._bq_import( dataset_name, table_name,  self._input_gcs_uri, src_fmt=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON, write_disposition=write_disposition ) 
 
 
 

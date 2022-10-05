@@ -1,4 +1,10 @@
-pyftpdlib
-useful_rdkit_utils
-pandas
-flask
+google-api-core==2.10.1
+google-api-python-client==1.12.11
+google-auth==1.35.0
+google-auth-httplib2==0.0.4
+google-auth-oauthlib==0.4.6
+google-cloud-bigquery==1.21.0
+google-cloud-bigquery-storage==1.1.2
+google-cloud-core==1.0.3
+google-cloud-documentai==2.0.1
+protobuf==3.20.2

@@ -514,6 +514,7 @@ def process_uris(
     , project_id: str
     , location: str = None
     , proc_id : str = None
+    , bq_dataset : str = None
   ):
   print(f"PROC_ID : {proc_id}")
   
@@ -599,7 +600,8 @@ def process_uris(
           , raw_text_file_path 
           , hcls_nl_json_uri
           , location
-          , proc_id )
+          , proc_id
+          , bq_dataset )
 
                                     
 

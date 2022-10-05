@@ -15,7 +15,8 @@ class FileConverter( object, metaclass=Interface):
         , first_gcs_uri : str 
         , raw_text_file_path : str
         , hcls_nl_json_uri : str    
-        , updated_timestamp_str : str):
+        , updated_timestamp_str : str
+        , bq_dataset : str):
         self._project_id = project_id
         self._input_gcs_uri = input_gcs_uri        
         self._first_gcs_uri = first_gcs_uri
@@ -23,6 +24,7 @@ class FileConverter( object, metaclass=Interface):
         self._raw_text_file_path = raw_text_file_path
         self._hcls_nl_json_uri = hcls_nl_json_uri
         self._updated_timestamp_str = updated_timestamp_str
+        self._bq_dataset = bq_dataset
 
         self._output_path = None
         GOOGLE_APPLICATION_CREDENTIALS = '/content/service_account.json'        

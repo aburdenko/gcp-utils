@@ -22,8 +22,9 @@ class HclsNlJsonFileConverter(FileConverter):
             single_entity['first_gcs_uri'] = first_gcs_path
             single_entity['input_gcs_uri'] = input_gcs_uri            
             single_entity['updated_timestamp'] = updated_timestamp            
-                            
+            single_entity['doc_type'] = 'HCLS.DocAI.MedicalDocument'                
             entities[single_entity['entity_id']] = single_entity
+            
 
         i = 0
         for entity_mention in resp.get('entityMentions', []):
@@ -41,8 +42,8 @@ class HclsNlJsonFileConverter(FileConverter):
             ln = len(entity_text)  
             end_offset = start_offset + ln
             simple_mention['end_offset'] = str(end_offset)
-        
-
+            
+    
             linked_entity_list = entity_mention.get('linkedEntities', None)
             if not linked_entity_list is None:
                 for linked_entity in linked_entity_list:
@@ -184,11 +185,11 @@ class HclsNlJsonFileConverter(FileConverter):
     def process( self, **kwargs ):                       
         res : dict = self._load_json_as_dict(self._content)       
                    
-        entity_file_name = f"entity_{self._file_prefix}.ndjson"        
+        entity_file_name = f"{self._bq_dataset}_entity_{self._file_prefix}.ndjson"        
         bq_entity_file_path = f"bq_import/{entity_file_name}"
         print(f"file_path : { bq_entity_file_path }")
 
-        doc_file_name = f"document_{self._file_prefix}.ndjson"        
+        doc_file_name = f"{self._bq_dataset}_document_{self._file_prefix}.ndjson"        
         bq_doc_file_path =  f"bq_import/{doc_file_name}"        
 
         ents, mentions, rels = self._get_entities(res, self._first_gcs_uri, f"gs://{self._bucket_name}/{bq_entity_file_path}", self._updated_timestamp_str )    

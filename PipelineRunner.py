@@ -27,6 +27,7 @@ class PipelineRunner():
             , hcls_nl_json_uri : str            
             , location : str = None
             , proc_id : str = None
+            , bq_dataset : str = None
         ):        
         import re
         class_name = re.sub("(^|[_?!])\s*([a-zA-Z])", lambda p: p.group(0).upper(), class_name)
@@ -50,10 +51,8 @@ class PipelineRunner():
         #     , hcls_nl_json_uri
         #     , timestamp_str)      
         
-                                                                                            
-        if module_name == 'gcputils.PdfFileConverter':            
-            from gcputils.PdfFileConverter import PdfFileConverter            
-            instance : PdfFileConverter = self._create_instance(
+
+        instance: Interface = self._create_instance(
                 module_name
                 , class_name
                 , project_id
@@ -61,21 +60,29 @@ class PipelineRunner():
                 , first_gcs_path
                 , raw_text_file_path 
                 , hcls_nl_json_uri
-                , timestamp_str )      
+                , timestamp_str
+                , bq_dataset )     
+
+
+        if module_name == 'gcputils.PdfFileConverter':            
+            from gcputils.PdfFileConverter import PdfFileConverter  
+            instance : PdfFileConverter = instance # implicit type conversion
+
+            
+            # instance : PdfFileConverter = self._create_instance(
+            #     module_name
+            #     , class_name
+            #     , project_id
+            #     , gcs_path
+            #     , first_gcs_path
+            #     , raw_text_file_path 
+            #     , hcls_nl_json_uri
+            #     , timestamp_str )      
 
             instance.location = location
             instance.proc_id = proc_id
-        else:
-            instance: Interface = self._create_instance(
-                module_name
-                , class_name
-                , project_id
-                , gcs_path
-                , first_gcs_path
-                , raw_text_file_path 
-                , hcls_nl_json_uri
-                , timestamp_str )     
-
+        
+            
         # run this
         res =  instance.process()                      
 
@@ -89,12 +96,13 @@ class PipelineRunner():
         , first_gcs_path : str 
         , raw_text_file_path : str
         , hcls_nl_json_uri : str
-        , timestamp_str : str ):                                       
+        , timestamp_str : str
+        , bq_dataset : str ):                                       
         import importlib                        
         module = importlib.import_module(module_name)
         class_ = getattr(module, class_name)                
         
-        instance = class_(project_id, input_gcs_uri, first_gcs_path, raw_text_file_path, hcls_nl_json_uri, timestamp_str)         
+        instance = class_(project_id, input_gcs_uri, first_gcs_path, raw_text_file_path, hcls_nl_json_uri, timestamp_str, bq_dataset)         
             
         return instance
     
