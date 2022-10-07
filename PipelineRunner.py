@@ -28,6 +28,7 @@ class PipelineRunner():
             , location : str = None
             , proc_id : str = None
             , bq_dataset : str = None
+            , workspace_home : str = None
         ):        
         import re
         class_name = re.sub("(^|[_?!])\s*([a-zA-Z])", lambda p: p.group(0).upper(), class_name)
@@ -61,7 +62,8 @@ class PipelineRunner():
                 , raw_text_file_path 
                 , hcls_nl_json_uri
                 , timestamp_str
-                , bq_dataset )     
+                , bq_dataset
+                , workspace_home )     
 
 
         if module_name == 'gcputils.PdfFileConverter':            
@@ -97,12 +99,13 @@ class PipelineRunner():
         , raw_text_file_path : str
         , hcls_nl_json_uri : str
         , timestamp_str : str
-        , bq_dataset : str ):                                       
+        , bq_dataset : str
+        , workspace_home : str ):                                       
         import importlib                        
         module = importlib.import_module(module_name)
         class_ = getattr(module, class_name)                
         
-        instance = class_(project_id, input_gcs_uri, first_gcs_path, raw_text_file_path, hcls_nl_json_uri, timestamp_str, bq_dataset)         
+        instance = class_(project_id, input_gcs_uri, first_gcs_path, raw_text_file_path, hcls_nl_json_uri, timestamp_str, bq_dataset, workspace_home)         
             
         return instance
     

@@ -131,7 +131,7 @@ class PdfFileConverter(FileConverter):
         from os.path import exists
         str_array = uri.split('/')
         folder = str_array[-1] 
-        file_path = f"/content/drive/MyDrive/workspace/{folder}_metadata.pickle"
+        file_path = f"{self._workspace_home}/{folder}_metadata.pickle"
 
         print(file_path)        
 

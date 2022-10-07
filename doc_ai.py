@@ -512,9 +512,10 @@ def batch_process(    project_id: str,
 def process_uris(
     uris: list
     , project_id: str
-    , location: str = None
-    , proc_id : str = None
-    , bq_dataset : str = None
+    , location: str 
+    , proc_id : str 
+    , bq_dataset : str 
+    , workspace_home : str
   ):
   print(f"PROC_ID : {proc_id}")
   
@@ -601,7 +602,8 @@ def process_uris(
           , hcls_nl_json_uri
           , location
           , proc_id
-          , bq_dataset )
+          , bq_dataset
+          , workspace_home )
 
                                     
 
@@ -621,15 +623,26 @@ if __name__ == '__main__':
   GCS_INPUT_URI3 = "gs://medical_text_demo/hcls_nl_json"  # @param {type:"string"} <---CHANGE THESE
   GCS_INPUT_URI4 = "gs://medical_text_demo/bq_import"  # @param {type:"string"} <---CHANGE THESE
 
+  DATASET_NAME = 'entities'
+
+  WORKSPACE_HOME = '/drive/MyDrive/workspace'
+
   from gcputils.doc_ai import process_uris
 
   gcs_input_str = concat(GCS_INPUT_URI, GCS_INPUT_URI2, GCS_INPUT_URI3, GCS_INPUT_URI4)
   gcs_inputs = gcs_input_str.split(',')
 
   from gcputils.doc_ai import process_uris
-  from google.cloud import documentai_v1 as documentai
+  from google.cloud import documentai_v1 as documentai  
 
-  process_uris(gcs_inputs, project_id=PROJECT_ID, location=LOCATION, proc_id=PROC_ID)             
+  process_uris( 
+      gcs_inputs
+    , project_id=PROJECT_ID
+    , location=LOCATION
+    , proc_id=PROC_ID
+    , bq_dataset=DATASET_NAME
+    , workspace_home=WORKSPACE_HOME
+  )                  
 
             
 

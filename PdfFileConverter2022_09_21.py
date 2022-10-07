@@ -194,7 +194,7 @@ class PdfFileConverter(FileConverter):
         from os.path import exists
         str_array = uri.split('/')
         folder = str_array[-1] 
-        file_path = f"/content/drive/MyDrive/workspace/{folder}_metadata.pickle"
+        file_path = f"{self._workspace_home}/{folder}_metadata.pickle"
         
 
         self._batch_process_documents(self, "kallogjeri-project-345114", "us", "618bddd4359b5183","gs://medical_text_demo/pdf","gs://medical_text_demo/doc_ai_processed")
