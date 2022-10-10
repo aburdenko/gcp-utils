@@ -4,7 +4,12 @@ from gcputils.cloud_storage import upload_str_to_bucket
 class HclsNlJsonFileConverter(FileConverter):
 
 
-    def _get_entities( self, resp : dict, first_gcs_path : str, input_gcs_uri : str, updated_timestamp: str ):  
+    def _get_entities( self
+                        , resp : dict
+                        , first_gcs_path : str
+                        , input_gcs_uri : str
+                        , updated_timestamp: str
+                        , text: str ):  
         import json
         entities = dict()     
         entity_mentions=list()
@@ -23,6 +28,7 @@ class HclsNlJsonFileConverter(FileConverter):
             single_entity['input_gcs_uri'] = input_gcs_uri            
             single_entity['updated_timestamp'] = updated_timestamp            
             single_entity['doc_type'] = 'HCLS.DocAI.MedicalDocument'                
+            single_entity['text'] = text                
             entities[single_entity['entity_id']] = single_entity
             
 
@@ -192,7 +198,11 @@ class HclsNlJsonFileConverter(FileConverter):
         doc_file_name = f"{self._bq_dataset}_document_{self._file_prefix}.ndjson"        
         bq_doc_file_path =  f"bq_import/{doc_file_name}"        
 
-        ents, mentions, rels = self._get_entities(res, self._first_gcs_uri, f"gs://{self._bucket_name}/{bq_entity_file_path}", self._updated_timestamp_str )    
+        ents, mentions, rels = self._get_entities(  res
+                                                    , self._first_gcs_uri
+                                                    , f"gs://{self._bucket_name}/{bq_entity_file_path}"
+                                                    , self._updated_timestamp_str
+                                                    , self._content )    
                  
         upload_str_to_bucket(self._to_jsonl( list(ents.values())), bucket_name=self._bucket_name, file_path=bq_entity_file_path) 
 
