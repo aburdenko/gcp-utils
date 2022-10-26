@@ -8,7 +8,9 @@ def abstractmethod(func):
     func.__isabstract__ = True
     return func
 
-class FileConverter( object, metaclass=Interface):                   
+class FileConverter( object, metaclass=Interface):           
+
+
     def __init__(self
         , project_id: str
         , input_gcs_uri: str
@@ -17,20 +19,28 @@ class FileConverter( object, metaclass=Interface):
         , hcls_nl_json_uri : str    
         , updated_timestamp_str : str
         , bq_dataset : str
-        , workspace_home: str):
+        , workspace_home: str
+        , service_account_file : str):
         self._project_id = project_id
         self._input_gcs_uri = input_gcs_uri        
         self._first_gcs_uri = first_gcs_uri
-        print(f"in constructor, self._first_gcs_uri  {self._first_gcs_uri }")
+        print(f"in FileConverter constructor, self._first_gcs_uri  {self._first_gcs_uri }")
         self._raw_text_file_path = raw_text_file_path
+
+       
+            
         self._hcls_nl_json_uri = hcls_nl_json_uri
         self._updated_timestamp_str = updated_timestamp_str
         self._bq_dataset = bq_dataset
         self._workspace_home = workspace_home
 
+
+
         self._output_path = None
-        GOOGLE_APPLICATION_CREDENTIALS = '/content/service_account.json'        
-        self._creds = get_credentials( service_account_file=GOOGLE_APPLICATION_CREDENTIALS)
+        
+        self._creds = get_credentials(              
+            service_account_file=service_account_file
+        )
         
         self._clean_file_path, self._file_name, self._file_prefix , self._file_ext, self._sub_folder = self._get_clean_path( input_gcs_uri )
                     

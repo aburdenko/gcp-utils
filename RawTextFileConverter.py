@@ -4,6 +4,8 @@ from gcputils.cloud_storage import upload_str_to_bucket
 
 class RawTextFileConverter(FileConverter):
     
+    raw_text_file_path=None
+    
        
     def process( self, **kwargs ):       
         print(f"clean_path : {self._clean_file_path}")
@@ -14,7 +16,11 @@ class RawTextFileConverter(FileConverter):
         print(f"raw_text_file_path : {self._raw_text_file_path}")
         print(f"hcls_nl_json_uri : {self._hcls_nl_json_uri}")
 
+        if not RawTextFileConverter.raw_text_file_path:
+            RawTextFileConverter.raw_text_file_path = f"raw_text/{self._file_prefix}.txt"
+    
 
+        
         str_item=self._content
         creds=self._creds
         project=self._project_id

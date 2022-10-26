@@ -7,3 +7,4 @@ from gcputils import hcls_nlp
 from gcputils import cloud_storage
 from gcputils import credentials
 from gcputils import PipelineRunner
+from gcputils import RawTextFileConverter

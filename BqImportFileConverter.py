@@ -38,6 +38,23 @@ class BqImportFileConverter(FileConverter):
 
         return list(keys)
 
+    def _table_exists(self, project, dataset, table):
+        from google.cloud import bigquery
+        from google.cloud.exceptions import NotFound
+
+        client = bigquery.Client()
+
+        
+        table_id = f"{project}.{dataset}.{table}"
+        exists = False
+        try:
+            client.get_table(table_id)  # Make an API request.
+            exists = True
+        except NotFound:
+            exists = False
+
+        return exists
+
     def _already_imported( self, gcs_input_path : str, key: str = 'input_gcs_uri')->bool:
         
         table = 'Entity' if 'entity' in gcs_input_path else 'Document'
@@ -56,8 +73,7 @@ class BqImportFileConverter(FileConverter):
 
         return (gcs_input_path in gcs_uris)
 
-
-    
+        
     def _bq_import(self, dataset_id, table_name, input_gcs_uri, src_fmt: bigquery.SourceFormat = bigquery.SourceFormat.NEWLINE_DELIMITED_JSON, write_disposition : bigquery.WriteDisposition = bigquery.WriteDisposition().WRITE_TRUNCATE):   
         """
             Loading data to BigQuery 
@@ -97,15 +113,20 @@ class BqImportFileConverter(FileConverter):
         creds=self._creds
         project=self._project_id
 
-        if not self._already_imported( self._input_gcs_uri):
-            
-            dataset_and_table_names = self._file_prefix.split('_')            
-            dataset_name : str = dataset_and_table_names[0]
-            dataset_name = dataset_name.lower()
-            table_name : str = dataset_and_table_names[1]
-            table_name = table_name.capitalize()        
-            
-            write_disposition : bigquery.WriteDisposition = bigquery.WriteDisposition().WRITE_APPEND
+        dataset_and_table_names = self._file_prefix.split('_')            
+        dataset_name : str = dataset_and_table_names[0]
+        dataset_name = dataset_name.lower()
+        table_name : str = dataset_and_table_names[1]
+        table_name = table_name.capitalize()        
+
+        write_disposition : bigquery.WriteDisposition = bigquery.WriteDisposition().WRITE_APPEND
+        table_exists = self._table_exists( project, dataset_name, table_name )
+        if not table_exists:
+            write_disposition : bigquery.WriteDisposition = bigquery.WriteDisposition().WRITE_TRUNCATE
+        
+
+        if not table_exists or not self._already_imported( self._input_gcs_uri):
+                                                                            
             try:
                 self._bq_import( dataset_name, table_name,  self._input_gcs_uri, src_fmt=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON, write_disposition=write_disposition ) 
             except:

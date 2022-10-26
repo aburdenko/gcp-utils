@@ -1,8 +1,46 @@
 from gcputils.FileConverter import FileConverter
 from gcputils.cloud_storage import upload_str_to_bucket
+from gcputils.cloud_storage import download_df_from_bucket
+from gcputils.cloud_storage import download_str_from_bucket
+from google.cloud.aiplatform.datasets.text_dataset import TextDataset
+from google.cloud import aiplatform as aip
+from gcputils.RawTextFileConverter import RawTextFileConverter
 
 class HclsNlJsonFileConverter(FileConverter):
 
+
+    def __init__(   self
+                    , project_id: str
+                    , input_gcs_uri: str
+                    , first_gcs_uri : str 
+                    , raw_text_file_path : str
+                    , hcls_nl_json_uri : str    
+                    , updated_timestamp_str : str
+                    , bq_dataset : str
+                    , workspace_home: str
+                    , service_account_file : str):
+        
+        
+        self._raw_text = None
+        
+        super().__init__(
+            project_id
+            , input_gcs_uri
+            , first_gcs_uri 
+            , raw_text_file_path 
+            , hcls_nl_json_uri 
+            , updated_timestamp_str
+            , bq_dataset 
+            , workspace_home
+            , service_account_file )
+
+    @property
+    def raw_text(self): 
+        return self._raw_text
+    
+    @raw_text.setter
+    def raw_text(self, value):
+        self._raw_text = value
 
     def _get_entities( self
                         , resp : dict
@@ -28,7 +66,7 @@ class HclsNlJsonFileConverter(FileConverter):
             single_entity['input_gcs_uri'] = input_gcs_uri            
             single_entity['updated_timestamp'] = updated_timestamp            
             single_entity['doc_type'] = 'HCLS.DocAI.MedicalDocument'                
-            single_entity['text'] = text                
+            single_entity['text'] = self._content                
             entities[single_entity['entity_id']] = single_entity
             
 
@@ -145,9 +183,18 @@ class HclsNlJsonFileConverter(FileConverter):
 
             return automl_entities    
  
-    def _get_document(self, input_gcs_uri : str, first_gcs_uri : str, raw_text_file_path : str, hcls_nl_json_uri : str, was_ocrd : bool, automl_dataset_id : str)->dict:  
+    def _get_document(  self
+                        , input_gcs_uri : str
+                        , first_gcs_uri : str
+                        , raw_text_file_path : str
+                        , hcls_nl_json_uri : str
+                        , was_ocrd : bool
+                        , automl_dataset_id : str
+                        , raw_text)->dict:  
     
-        docs = dict()       
+      
+        docs = dict()  
+        
         single_doc = dict()     
         #single_doc['gcs_uri'], _, _ = get_clean_path(gcs_path)
         single_doc['input_gcs_uri'] = input_gcs_uri
@@ -156,12 +203,17 @@ class HclsNlJsonFileConverter(FileConverter):
         single_doc['was_ocrd'] = True       
         single_doc['was_abstracted'] = True
         single_doc['automl_dataset_url'] = f"https://console.cloud.google.com/vertex-ai/locations/us-central1/datasets/{automl_dataset_id}"
-        docs[input_gcs_uri] = single_doc
-        
-        return docs  
 
-        from google.cloud.aiplatform.datasets.text_dataset import TextDataset
-        from google.cloud import aiplatform as aip
+        text : str = str( download_str_from_bucket (  
+                self._bucket_name
+                , RawTextFileConverter.raw_text_file_path 
+            ) 
+        )
+
+        single_doc['text'] = text
+
+        docs[input_gcs_uri] = single_doc
+        return docs      
     
     def _create_aip_dataset(self, display_name, source : list, export_bucket_name : str, existing_ds_name : str = None ): 
         from datetime import datetime
@@ -174,7 +226,7 @@ class HclsNlJsonFileConverter(FileConverter):
             file_path=f"gs://{export_bucket_name}/automl_dataset/{existing_ds_name}"    
             existing_dataset = aip.TextDataset(dataset_name=existing_ds_name)
             existing_dataset.export_data( file_path )
-        
+                        
         dataset : TextDataset = aip.TextDataset.create(
             display_name=display_name + "_" + TIMESTAMP,
             gcs_source=source,
@@ -220,8 +272,12 @@ class HclsNlJsonFileConverter(FileConverter):
             , self._raw_text_file_path 
             , self._hcls_nl_json_uri 
             , was_ocrd
-            , None)        
-        upload_str_to_bucket( self._to_jsonl( list( doc.values()) ), bucket_name=self._bucket_name, file_path=bq_doc_file_path)    
+            , None
+            , self.raw_text )        
+        content = self._to_jsonl( list( doc.values() ) )                    
+        upload_str_to_bucket( content
+                            , bucket_name=self._bucket_name  
+                            , file_path=bq_doc_file_path )    
 
         
 

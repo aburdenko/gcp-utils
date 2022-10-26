@@ -60,6 +60,7 @@ def process_uris(
     , proc_id : str 
     , bq_dataset : str 
     , workspace_home : str
+    , service_account_file : str
   ):
   print(f"PROC_ID : {proc_id}")
   
@@ -137,17 +138,19 @@ def process_uris(
           
           print(f"raw_text_file_path : {raw_text_file_path}")
           print(f"in docai, first_gcs_path : {first_gcs_path}")
+          
           runner.process( module_name
           , class_name
           , project_id
           , gcs_path
           , first_gcs_path 
-          , raw_text_file_path 
+          , raw_text_file_path                 
           , hcls_nl_json_uri
           , location
           , proc_id
           , bq_dataset
-          , workspace_home )
+          , workspace_home
+          , service_account_file )
 
                                     
 
@@ -169,7 +172,8 @@ if __name__ == '__main__':
 
   DATASET_NAME = 'entities'
 
-  WORKSPACE_HOME = '/drive/MyDrive/workspace'
+  WORKSPACE_HOME = '/home/aburdenko/drive/workspace'
+  SERVICE_ACCOUNT_FILE = f"{WORKSPACE_HOME}/service_account.json"
 
   from gcputils.doc_ai import process_uris
 
@@ -186,6 +190,7 @@ if __name__ == '__main__':
     , proc_id=PROC_ID
     , bq_dataset=DATASET_NAME
     , workspace_home=WORKSPACE_HOME
+    , service_account_file=SERVICE_ACCOUNT_FILE
   )                  
 
             
