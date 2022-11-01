@@ -305,7 +305,7 @@ def download_df_from_bucket(bucket_name, file_name = 'default.csv' )->DataFrame:
     
         from io import StringIO
         f = StringIO(str(content))
-        df = pd.read_csv( f, sep=',', index_col=False )
+        df = pd.read_csv( f, sep=',', index_col=1 )
         #df.set_index( df.columns[0] ) 
         # if df.columns[0] is not 'entity':
         #     df.rename(columns={ df.columns[0]: "entity" }, inplace = True)
