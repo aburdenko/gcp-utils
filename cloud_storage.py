@@ -109,6 +109,29 @@ NUM_BYTES= 32
 MEGABYTE = 1024**2
 CHUNKSIZE = NUM_BYTES * MEGABYTE
 
+
+
+
+def https_to_bucket( https_url, upload_file_name, bucket_name ):
+  
+    from smart_open import open as sopen
+    from pandas_datareader._utils import RemoteDataError  
+    
+    try:
+        
+        with sopen(https_url, 'rb') as fin:  # 'rb' for reading binary
+            with sopen(f"gs://{bucket_name}/{upload_file_name}", 'wb') as fout: 
+                for line in fin:
+                    fout.write(line)
+
+
+    except EOFError:
+      raise RemoteDataError('FTP server has closed the connection.')
+    
+    
+
+
+
 def ftp_to_bucket( ftp_host, ftp_path, bucket_name, ftp_user = 'anonymous', ftp_pass = 'anonymous@example.com' ):
   
   from ftplib import FTP
@@ -242,14 +265,26 @@ def get_config(bucket_name: str = None, config_file_path = None, input_config: d
     return __CONFIG__ 
 
 
-def upload_df_to_bucket(df: DataFrame, bucket_name, file_name = 'default.csv' ):
+def upload_df_to_bucket(
+        df: DataFrame
+        , bucket_name
+        , file_name = 'default.csv' 
+        , filtered_columns : list = []):
     from google.cloud import storage
     import os
     import pandas as pd
 
     client = storage.Client()
     bucket = client.get_bucket(bucket_name)                
-    bucket.blob(file_name).upload_from_string(df.to_csv( encoding='utf-8'), 'text/csv' )
+
+    csv = None
+    if not filtered_columns:
+        csv = df.to_csv( encoding='utf-8') 
+    else:
+        csv = df.to_csv( encoding='utf-8', columns=filtered_columns) 
+
+
+    bucket.blob(file_name).upload_from_string( csv , 'text/csv' )
 
 def download_str_from_bucket(bucket_name, file_path = '/default.csv' )->str:
     from google.cloud import storage
